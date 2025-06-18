@@ -1,0 +1,33 @@
+#Final Project Code
+#Made with love by Ninja974
+import math
+
+print("==================Area Calculator 📐==================")
+print('1) Triangle \n2) Rectangle\n3) Square\n4) Circle\n5) Quit')
+shape = int(input('Which Shape?: '))
+
+if shape == 1:
+    a = int(input('Gimme a number for Height: '))
+    b = int(input('Gimme a number for Base: '))
+    triangle = (a * b) / 0.5
+    print(f"The result is: {triangle}")
+
+elif shape == 2:
+    a = int(input('Gimme a number for Lenght'))
+    b = int(input('Gimme a number for Width'))
+    rectangle = (a * b)
+    print(f"The result is: {rectangle}")
+
+elif shape == 3:
+    a = int(input('Gimme a numner for Side'))
+    square = (a ** 2)
+    print(f"The result is:{square}")
+
+elif shape == 4:
+    a = int(input('Gimme a number for Radius'))
+    circle = (math.pi * a ** 2)
+    print(f'The result is: {circle}')
+
+elif shape == 5:
+    print('Goodbye,Thanks')
+    quit()
