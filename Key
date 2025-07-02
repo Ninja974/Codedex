@@ -1,0 +1,115 @@
+getgenv().WebSocket = nil
+getgenv().Websocket = nil
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
+
+api.script_id = "acdced2352def79bef163e2db39d2ec5"
+
+
+local UserInputService = game:GetService("UserInputService")
+local open = true
+
+local function checkKey(inputKey)
+    inputKey = inputKey:gsub("%s+", "")
+    if #inputKey ~= 32 then return false end
+
+    local status = api.check_key(inputKey)
+
+    if status.code == "KEY_VALID" then
+        if not isfolder("FireScripts") then makefolder("FireScripts") end
+        writefile("FireScripts/Key.txt", inputKey)
+
+        Fluent:Notify({
+            Title = "✅ Key Valid!",
+            Content = "Welcome to Fire Scripts!",
+            SubContent = "Time Left: " .. math.abs(os.time() - status.data.auth_expire) .. "s",
+            Duration = 8
+        })
+
+        getgenv().script_key = inputKey
+        task.spawn(function() api.load_script() end)
+        return true
+
+    elseif status.code == "KEY_HWID_LOCKED" then
+        Fluent:Notify({ Title = "🔒 Key Locked", Content = "This key is locked to another HWID. Get a new one.", Duration = 8 })
+    elseif status.code == "KEY_INCORRECT" then
+        Fluent:Notify({ Title = "❌ Invalid Key", Content = "Your key is incorrect or expired.", Duration = 8 })
+    else
+        Fluent:Notify({ Title = "⚠️ Key Check Failed", Content = "Status: " .. tostring(status.code), Duration = 8 })
+    end
+    return false
+end
+
+-- Try saved key first
+if isfolder("FireScripts") and isfile("FireScripts/Key.txt") then
+    local key = readfile("FireScripts/Key.txt")
+    if #key == 32 and checkKey(key) then return end
+end
+
+-- Show Fluent UI
+local Window = Fluent:CreateWindow({
+    Title = "Fire Scripts Key",
+    SubTitle = "discord.gg/ry9e3kSb3A",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(500, 300),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tab = Window:AddTab({ Title = "Key System 🔑", Icon = "" })
+
+Tab:AddParagraph({
+    Title = "How to Get Key",
+    Content = "1. Click 'Copy Key Link'\n2. Get your key from our website\n3. Paste it below and click 'Check Key'!\nIf you need help, join our Discord!"
+})
+
+Tab:AddButton({
+    Title = "Copy Key Link 🌐",
+    Description = "Copies the key site link to clipboard",
+    Callback = function()
+        setclipboard("https://ninja974.github.io/Fire-Scripts.github.io/#hero")
+        Fluent:Notify({
+            Title = "Link Copied",
+            Content = "Go get your key!",
+            Duration = 4
+        })
+    end
+})
+
+-- INPUT
+local keyHolder = { key = "" }
+
+Tab:AddInput("KeyInput", {
+    Title = "Paste Key Here",
+    Placeholder = "Enter your 32-char key",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        keyHolder.key = Value
+    end
+})
+
+-- NEW: Check Key Button
+Tab:AddButton({
+    Title = "✅ Check Key",
+    Description = "Check if your key is valid and load script",
+    Callback = function()
+        local result = checkKey(keyHolder.key)
+        if result then
+            Window:Destroy()
+        end
+    end
+})
+
+-- TOGGLE WITH LEFT SHIFT
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        open = not open
+        Window:SetVisible(open)
+    end
+end)
+
+Window:SelectTab(1)
