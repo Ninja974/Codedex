@@ -1,7 +1,4 @@
-if not LRM_LinkedDiscordID then
-    game.Players.LocalPlayer:Kick("Please link your Discord to use this script.")
-    LPH_CRASH()
-end
+
 getgenv().WebSocket = nil
 getgenv().Websocket = nil
 
